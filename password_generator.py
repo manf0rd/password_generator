@@ -9,19 +9,23 @@ class file_mover:
 
     def move(self, new_filepath):
         try:
+            if not os.path.exists(os.path.dirname(new_filepath)):
+                os.makedirs(os.path.dirname(new_filepath))
             shutil.move(self.filepath, new_filepath)
-            print(f'File moved:\n\t{new_filepath}')
+            print(f'File moved: {new_filepath}')
         except OSError as error:
             print(error)
-            print(f'Unable to move {self.filepath}')
+            print(f'Unable to move: {self.filepath}')
+            continue_prompt()
 
     def delete(self):
         try:
             os.remove(self.filepath)
-            print(f'File deleted:\n\t{self.filepath}')
+            print(f'File deleted: {self.filepath}')
         except OSError as error:
             print(error)
             print(f'{self.filepath} can not be removed')
+            continue_prompt()
 
     def write(self,passwords):
         try:
@@ -33,6 +37,7 @@ class file_mover:
         except OSError as error:
             print(error)
             print(f'Unable to write {self.filepath}')
+            continue_prompt()
 
 def generate_password(password_length=16):
     password = ''
@@ -54,53 +59,52 @@ def continue_prompt():
     if answer == 'y':
         main()
     else:
-        input('Press any key to close...\n')
         exit()
 
-def exist_menu(root_path,password_file,passwords):
-    choice = input('Password file already exists.  Would you like to do (a)rchive first, (o)verwrite, or (r)emove?\n')
-    choice = choice[:1]
-    if choice not in ['a','o','r']:
-        input(f'Password file already exists.  Would you like to do (a)rchive first, (o)verwrite, or (r)emove?\n')
+def clear_console():
+    os.system('cls' if os.name=='nt' else 'clear')
+
+def exist_menu(root_path,password_file):
+    choice = ''
+    while choice[:1].lower() not in ['a','o']:
+        choice = input('Password file already exists.  (A)rchive existing first or just (O)verwrite?\n')
     match choice:
         case 'a': #archive file
-            timestr = time.strftime("%Y%m%d-%H%M")
-            new_filepath = os.path.join(root_path,'archive',f'{timestr}_passwords.txt')
+            time_string = time.strftime('%H-%M-%S')
+            folder_name = os.path.join(root_path,time.strftime('%Y-%m-%d'))
+            new_filepath = os.path.join(folder_name, f'{time_string}_passwords.txt')
             password_file.move(new_filepath)
-            password_file.write(passwords)
+            password_file.write(password_file.passwords)
             continue_prompt()
         case 'o': #overwrite file
-            password_file.delete()
-            password_file.write(passwords)
+            password_file.write(password_file.passwords)
             continue_prompt()
-        case 'r': #delete file
-            password_file.delete()
-            continue_prompt()
-        case _:
-            print("None valid input\n")
-            continue_prompt(exist_menu(root_path,password_file,passwords))
 
 def main():
-    default_root_path = 'c:\\temp\\Password_Generator'
-    path = input(f'Default save location is: {default_root_path}\nEnter a new path or press Enter to contine with default.\n')
-
-    if not path == '':
-        root_path = os.path.expanduser(path)
-        while not os.path.exists(root_path):
-            try:
-                os.mkdir(root_path)
-            except OSError as error:
-                print(error)
-                print(f'Please ensure path is entered correctly. Example: c:\\temp\passwords')
-    root_path = default_root_path
+    clear_console()
+    root_path = 'c:\\temp\\Password_Generator'
+    path = input(f'Enter a new export location or press Enter to contine with default - {root_path}\n')
+    confirm = ''
+    while confirm[:1].lower() != 'y':
+        confirm = input(f'Passwords will be written as {os.path.join(path, "passwords.txt")}\nIs this correct? (Y)es or (N)o?\n')
+        if confirm[:1].lower() == 'n':
+            root_path = 'c:\\temp\\Password_Generator'
+            path = input(f'Enter a new export location or press Enter to contine with default - {root_path}\n')
+    if not path == '': root_path = path
+    while not os.path.isdir(root_path):
+        try:
+            os.makedirs(root_path)
+        except OSError as error:
+            print(error)
+            print('Please ensure path is entered correctly. Example: c:\\temp\passwords')        
     
     number = input('Enter number of passwords to generate:\n')
     while not number.isdigit():
-        number = input(f'Enter number of passwords to generate:\n')
+        number = input('Enter number of passwords to generate:\n')
 
     password_length = input('Enter password Length:\n')
     while not password_length.isdigit():
-        password_length = input(f'Please provide a number of passwords to generate:\n')
+        password_length = input('Please provide a number of passwords to generate:\n')
     passwords = [] 
 
     for i in range(int(number)):
@@ -111,13 +115,10 @@ def main():
     password_file = file_mover(passwords, password_file_path)
 
     if os.path.exists(password_file.filepath):
-        exist_menu(root_path, password_file, passwords)
+        exist_menu(root_path, password_file)
     else:
         password_file.write(passwords)
     continue_prompt()
 
 if __name__ == '__main__':
     main()
-
-
-#TODO add default c:\temp\password_generator\day_month\passwords_date.txt, change file path option
