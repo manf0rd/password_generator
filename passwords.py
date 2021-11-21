@@ -1,9 +1,5 @@
 #! pyton3
-#TODO add default c:\temp\password_generator\day_month\passwords_date.txt, change file path option
-import os,random,string,shutil,time
-from colorama import Fore, Style
-
-root_path = 'c:\\temp'
+import os,random,string,shutil,time,colorama
 class file_mover:
     def __init__(self, passwords ,filepath):
         self.filepath = filepath
@@ -14,18 +10,18 @@ class file_mover:
     def move(self, new_filepath):
         try:
             shutil.move(self.filepath, new_filepath)
-            print(f'{Fore.GREEN}File moved:\n\t{new_filepath}{Style.RESET_ALL}')
+            print(f'{colorama.Fore.GREEN}File moved:\n\t{new_filepath}{colorama.Style.RESET_ALL}')
         except OSError as error:
             print(error)
-            print(f'{Fore.RED}Unable to move {self.filepath}{Style.RESET_ALL}')
+            print(f'{colorama.Fore.RED}Unable to move {self.filepath}{colorama.Style.RESET_ALL}')
 
     def delete(self):
         try:
             os.remove(self.filepath)
-            print(f'{Fore.GREEN}File deleted:\n\t{self.filepath}{Style.RESET_ALL}')
+            print(f'{colorama.Fore.GREEN}File deleted:\n\t{self.filepath}{colorama.Style.RESET_ALL}')
         except OSError as error:
             print(error)
-            print(f'{Fore.RED}{self.filepath} can not be removed{Style.RESET_ALL}')
+            print(f'{colorama.Fore.RED}{self.filepath} can not be removed{colorama.Style.RESET_ALL}')
 
     def write(self,passwords):
         try:
@@ -33,10 +29,10 @@ class file_mover:
                 os.remove(self.filepath)
             with open(self.filepath, 'w') as file:
                 file.write('\n'.join(str(item) for item in passwords))
-                print(f'{Fore.GREEN}Passwords written to: {self.filepath}{Style.RESET_ALL}')
+                print(f'{colorama.Fore.GREEN}Passwords written to: {self.filepath}{colorama.Style.RESET_ALL}')
         except OSError as error:
             print(error)
-            print(f'{Fore.RED}except to write{Style.RESET_ALL}')
+            print(f'{colorama.Fore.RED}except to write{colorama.Style.RESET_ALL}')
 
 def generate_password(password_length=16):
     password = ''
@@ -53,7 +49,7 @@ def generate_password(password_length=16):
     return new_password
 
 def continue_prompt():
-    answer = input(f'{Fore.YELLOW}Would you like to continue? Yes or No?{Style.RESET_ALL}\n')
+    answer = input(f'{colorama.Fore.YELLOW}Would you like to continue? Yes or No?{colorama.Style.RESET_ALL}\n')
     answer = answer[:1]
     if answer == 'y':
         main()
@@ -65,7 +61,7 @@ def exist_menu(root_path,password_file,passwords):
     choice = input('Password file already exists.  Would you like to do (a)rchive first, (o)verwrite, or (r)emove?\n')
     choice = choice[:1]
     if choice not in ['a','o','r']:
-        input(f'{Fore.RED}Password file already exists.  Would you like to do (a)rchive first, (o)verwrite, or (r)emove?{Style.RESET_ALL}\n')
+        input(f'{colorama.Fore.RED}Password file already exists.  Would you like to do (a)rchive first, (o)verwrite, or (r)emove?{colorama.Style.RESET_ALL}\n')
     match choice:
         case 'a': #archive file
             timestr = time.strftime("%Y%m%d-%H%M")
@@ -90,16 +86,17 @@ def main():
             os.mkdir(root_path)
     except OSError as error:
         print(error)
-        print(f'{Fore.RED}Unable to create temp directory{Style.RESET_ALL}')
+        print(f'{colorama.Fore.RED}Unable to create temp directory{colorama.Style.RESET_ALL}')
         continue_prompt()
-
+    
+    root_path = 'c:\\temp'
     number = input('Enter number of passwords to generate:\n')
     while not number.isdigit():
-        number = input(f'{Fore.RED}Enter number of passwords to generate:{Style.RESET_ALL}\n')
+        number = input(f'{colorama.Fore.RED}Enter number of passwords to generate:{colorama.Style.RESET_ALL}\n')
 
     password_length = input('Enter password Length:\n')
     while not password_length.isdigit():
-        password_length = input(f'{Fore.RED}Please provide a number of passwords to generate:{Style.RESET_ALL}\n')
+        password_length = input(f'{colorama.Fore.RED}Please provide a number of passwords to generate:{colorama.Style.RESET_ALL}\n')
     passwords = [] 
 
     for i in range(int(number)):
@@ -117,3 +114,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+#TODO add default c:\temp\password_generator\day_month\passwords_date.txt, change file path option
