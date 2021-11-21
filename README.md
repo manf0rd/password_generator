@@ -1,1 +1,1 @@
-# password generator tool - python learning project
+# Password Generator - python learning project
